@@ -190,9 +190,16 @@ function _startListening(channel) {
         // someone is listening, start subscribing
 
         const listenerFn = msgObj => {
+            if (!msgObj.time) {
+                msgObj.time = channel.method.microSeconds();
+            }
+            if(['internal', 'message'].includes(msgObj.type) === false) {
+                msgObj.type = 'message';
+            }
             channel._addEL[msgObj.type].forEach(obj => {
+
                 if (msgObj.time >= obj.time) {
-                    obj.fn(msgObj.data);
+                    obj.fn(msgObj.data || msgObj);
                 }
             });
         };

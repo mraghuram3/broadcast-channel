@@ -190,9 +190,17 @@ function _startListening(channel) {
   if (!channel._iL && _hasMessageListeners(channel)) {
     // someone is listening, start subscribing
     var listenerFn = function listenerFn(msgObj) {
+      if (!msgObj.time) {
+        msgObj.time = channel.method.microSeconds();
+      }
+
+      if (['internal', 'message'].includes(msgObj.type) === false) {
+        msgObj.type = 'message';
+      }
+
       channel._addEL[msgObj.type].forEach(function (obj) {
         if (msgObj.time >= obj.time) {
-          obj.fn(msgObj.data);
+          obj.fn(msgObj.data || msgObj);
         }
       });
     };
